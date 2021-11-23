@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "an-array-of-english-words": "^2.0.0",
+    "download": "^8.0.0",
+    "lodash": "^4.17.21"
+  }
+}
