@@ -1,0 +1,19 @@
+build:
+  gpu: false
+
+  system_packages:
+    - "libgl1-mesa-glx"
+    - "libglib2.0-0"
+
+  python_version: "3.9"
+
+  python_packages:
+    - "scikit-learn==1.0.1"
+    - "pillow==8.4.0"
+    - "matplotlib==3.5.0"
+    - "jupyterlab==3.2.4"
+  
+  run:
+    - "echo env is ready!"
+
+predict: "predict.py:Predictor"
