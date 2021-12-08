@@ -2,7 +2,7 @@
 
 A machine learning experiment to differentiate default GitHub avatars from custom ones.
 
-| Example Default | Example Custom | 
+| example default avatar | example custom avatar | 
 | ------- | ------ |
 | ![default](avatars/default/abrim.png) | ![custom](avatars/custom/zeke.png) |
 
