@@ -4,3 +4,5 @@ set -x # print statements as they're being executed
 
 docker run -p 8888:8888 -it cog-github-avatars jupyter notebook --allow-root --ip=0.0.0.0
 
+# cog run jupyter notebook -p 8888:8888 --allow-root --ip=0.0.0.0
+

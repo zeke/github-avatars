@@ -1,38 +1,38 @@
 import sklearn
-
+import numpy as np
+import matplotlib.pyplot as plt
 from PIL import Image
 
 from sklearn.datasets import load_files
 
-# files = load_files('./avatars')
+files = load_files('./avatars', load_content=False)
 
-# for datum in files["data"]:
-#     print(datum)
+def file_to_color_histogram(path):
+    
+    # open the file with pillow, resize it, normalize
+    image = Image.open(path)
+    image = image.resize((16, 16))
+    image = image.convert("RGB")
 
+    # use numpy to extra an array of pixel data from the image
+    data = image.getdata()
+    pix = np.array(data)
 
-from os import listdir
-from os.path import isfile, join
-import re
-import matplotlib.pyplot as plt
+    # divide each pixel by 32 and round
+    pix = pix//32 
 
-mypath = './avatars/custom/'
-files = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+    # convert octal numbers to decimal numbers
+    multiplier = np.array([8**2, 8**1, 8**0])
 
-x = []
-y = []
+    transformed_pixel_values = np.sum(pix*multiplier, axis=1)
 
-for file in files:
-    print(file)
-    # label = file # file.split('_')[0] # assuming your img is named like this "eight_1.png" you want to get the label "eight"
-    # y.append(label)
-    # img = plt.imread(file)
-    # x.append(img)
+    feature_vector_omg = np.bincount(transformed_pixel_values, minlength=512)
 
-# img = PIL.Image.open("image_location/image_name") # This returns an image object   
-# img = np.asarray(img) # convert it to ndarray
+    return feature_vector_omg
 
-# from PIL import Image 
-# import numpy as np
+histograms = []
+for file in files["filenames"]:
+    histogram = file_to_color_histogram(file)
+    histograms.append(histogram)
 
-# img = PIL.Image.open("image_location/image_name") # This returns an image object   
-# img = np.asarray(img) # convert it to ndarray
+histograms
