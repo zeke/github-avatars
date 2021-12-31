@@ -17,3 +17,5 @@ build:
     - "echo env is ready!"
 
 predict: "predict.py:Predictor"
+
+image: r8.im/zeke/github-avatars
