@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[18]:
+# In[1]:
 
 
 from sklearn import tree
@@ -17,27 +17,27 @@ from PIL import Image
 files = load_files('./avatars', load_content=False)
 
 
-# In[9]:
+# In[3]:
 
 
 files.keys()
 
 
-# In[10]:
+# In[4]:
 
 
 # labels
 files["target"]
 
 
-# In[12]:
+# In[5]:
 
 
 # folder names
 files["target_names"]
 
 
-# In[3]:
+# In[6]:
 
 
 def file_to_color_histogram(path):
@@ -59,12 +59,13 @@ def file_to_color_histogram(path):
 
     transformed_pixel_values = np.sum(pix*multiplier, axis=1)
 
+    # count number of occurrences of each value in array of non-negative ints
     feature_vector_omg = np.bincount(transformed_pixel_values, minlength=512)
 
     return feature_vector_omg
 
 
-# In[5]:
+# In[7]:
 
 
 # each histogram is an array of 8bits^3 (512 values) corresponding to the 8-bit colors in each image 
@@ -75,31 +76,31 @@ for file in files["filenames"]:
     histograms.append(histogram)
 
 
-# In[7]:
+# In[8]:
 
 
 histograms[0]
 
 
-# In[6]:
+# In[9]:
 
 
 histograms[0].shape
 
 
-# In[16]:
+# In[10]:
 
 
-# split our histograms and labels into a training™ set and a validation™ set
-# use part of our dataset as a "holdout set" during training to get a sense 
-# of how it will work on ral images
+# split our histograms and labels into a "training" set and a "validation" set
+# use part of our dataset as a "holdout set" during training to get a sense of how it will work on real images
 
-# sometimes there's a "test" set that's used when you're developing the model to avoid overoptimizing for the test set, but we're not using it.
+# (sometimes there's a "test" set that's used when you're developing the model to avoid overoptimizing 
+# for the validation set, but we're not using it.)
 
 # we'll use half as training, half as validation
 
-# TODO: considering balancing these sets so they have an equal number of 
-# default and custom avatars
+# TODO: considering balancing these sets so they have an equal number of default and custom avatars
+
 training_set = histograms[0:len(histograms)//2]
 validation_set = histograms[len(histograms)//2:]
 
@@ -110,7 +111,7 @@ validation_labels = labels[len(labels)//2:]
 [len(training_set), len(validation_set), len(training_labels), len(validation_labels)]
 
 
-# In[21]:
+# In[11]:
 
 
 # start with a simple decision tree
@@ -133,22 +134,10 @@ clf = clf.fit(training_set, training_labels)
 tree.plot_tree(clf)
 
 
-# In[ ]:
+# In[14]:
 
 
-tree.plot_tree(clf)
-
-
-# In[40]:
-
-
-clf.tree_
-
-
-# In[23]:
-
-
-# gini coefficient: goodness measure of how coherent the two groups are (zero is perfect, one (or 0.5) is useless)
+# gini coefficient: goodness measure of how coherent the two groups are (zero is perfect, one (or 0.5?) is useless)
 # it's what the decision tree uses to determine how to split
 
 # root node: if index 511 fewer or equal to than 67.5 of that color, split into two groups
@@ -157,49 +146,51 @@ clf.tree_
 
 # TODO: write a little function that turns an index into a hex color so we can see what it looks like
 
-
 # throw all of the validation examples through the tree and see which nodes they end up with
 prediction = clf.predict(validation_set[:1])[0]
 prediction
 
 
-# In[29]:
+# In[15]:
 
 
 validation_set[0][511], validation_set[0][438], validation_set[0][475]
 
 
-# In[30]:
+# In[16]:
 
 
 predictions = clf.predict(validation_set)
 predictions
 
 
-# In[32]:
+# In[17]:
 
 
+# how well did the model do?
 np.equal(predictions, validation_labels)
 
 
-# In[33]:
+# In[18]:
 
 
+# what's our accuracy?
 np.mean(np.equal(predictions, validation_labels))
 
 
-# In[36]:
+# In[19]:
 
 
-# download image, convert to histogram, call clf.predict on [histogram]
+# try it out on a custom avatar
 histogram = file_to_color_histogram("smoke-tests/andreasjansson.png")
 prediction = clf.predict([histogram])[0]
 prediction
 
 
-# In[37]:
+# In[20]:
 
 
+# try it out on a default avatar
 histogram = file_to_color_histogram("smoke-tests/default.png")
 prediction = clf.predict([histogram])[0]
 prediction
