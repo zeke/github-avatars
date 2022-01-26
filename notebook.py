@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[2]:
 
 
 from sklearn import tree
@@ -11,33 +11,33 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 
-# In[2]:
+# In[3]:
 
 
 files = load_files('./avatars', load_content=False)
 
 
-# In[3]:
+# In[4]:
 
 
 files.keys()
 
 
-# In[4]:
+# In[5]:
 
 
 # labels
 files["target"]
 
 
-# In[5]:
+# In[6]:
 
 
 # folder names
 files["target_names"]
 
 
-# In[6]:
+# In[40]:
 
 
 def file_to_color_histogram(path):
@@ -55,6 +55,9 @@ def file_to_color_histogram(path):
     pix = pix//32 
 
     # convert octal numbers to decimal numbers
+    # red is multiplied by 64
+    # green is multiplied by 8
+    # blue is multiplied by 1
     multiplier = np.array([8**2, 8**1, 8**0])
 
     transformed_pixel_values = np.sum(pix*multiplier, axis=1)
@@ -64,8 +67,17 @@ def file_to_color_histogram(path):
 
     return feature_vector_omg
 
+# make a function that takes a histogram index and spits out an rgb value
+def index_to_rgb(index):
+    r = index//64%8
+    g = index//8%8
+    b = index//1%8
+    return np.array([r,g,b])*32
 
-# In[7]:
+[index_to_rgb(25)]#
+
+
+# In[8]:
 
 
 # each histogram is an array of 8bits^3 (512 values) corresponding to the 8-bit colors in each image 
@@ -76,19 +88,21 @@ for file in files["filenames"]:
     histograms.append(histogram)
 
 
-# In[8]:
+# In[42]:
+
 
 
 histograms[0]
+#len(histograms[0])
 
 
-# In[9]:
+# In[10]:
 
 
 histograms[0].shape
 
 
-# In[10]:
+# In[11]:
 
 
 # split our histograms and labels into a "training" set and a "validation" set
@@ -111,7 +125,7 @@ validation_labels = labels[len(labels)//2:]
 [len(training_set), len(validation_set), len(training_labels), len(validation_labels)]
 
 
-# In[11]:
+# In[12]:
 
 
 # start with a simple decision tree
@@ -134,7 +148,29 @@ clf = clf.fit(training_set, training_labels)
 tree.plot_tree(clf)
 
 
-# In[14]:
+# In[ ]:
+
+
+
+
+
+# In[45]:
+
+
+# show color "511"
+rgb = index_to_rgb(511)
+plt.imshow(rgb.reshape(1,1,3))
+
+
+# In[46]:
+
+
+# show color "438"
+rgb = index_to_rgb(438)
+plt.imshow(rgb.reshape(1,1,3))
+
+
+# In[13]:
 
 
 # gini coefficient: goodness measure of how coherent the two groups are (zero is perfect, one (or 0.5?) is useless)
@@ -151,34 +187,97 @@ prediction = clf.predict(validation_set[:1])[0]
 prediction
 
 
-# In[15]:
+# In[14]:
 
 
 validation_set[0][511], validation_set[0][438], validation_set[0][475]
 
 
-# In[16]:
+# In[15]:
 
 
 predictions = clf.predict(validation_set)
 predictions
 
 
-# In[17]:
+# In[16]:
 
 
 # how well did the model do?
 np.equal(predictions, validation_labels)
 
 
-# In[18]:
+# In[23]:
+
+
+# indices of avatars that are actually defaults but are classified as custom
+
+# single &: elementwise boolean AND of vectors of matrices
+
+# 1: default
+# 0: custom
+
+false_customs = np.where((predictions != validation_labels)&(validation_labels == 1))[0]
+false_customs
+
+
+# In[24]:
+
+
+# display the false_custom(s)
+
+indices = false_customs + len(histograms)//2
+indices
+
+
+# In[28]:
+
+
+file = files["filenames"][indices[0]]
+
+Image.open(file)
+
+
+# In[29]:
+
+
+# indices of avatars that are actually customs but are classified as defaults
+# 1: default
+# 0: custom
+
+false_defaults = np.where((predictions != validation_labels)&(validation_labels == 0))[0]
+false_defaults
+
+
+# In[37]:
+
+
+# display the false defaults
+
+indices = false_defaults + len(histograms)//2
+
+
+images = [np.asarray(Image.open(files["filenames"][index])) for index in indices]
+
+for i in range(len(images)):
+    plt.subplot(1, len(images), i+1)
+    plt.imshow(images[i])
+
+
+# In[50]:
+
+
+pixels_with_this_color = histograms[indices[0]][511]
+
+
+# In[17]:
 
 
 # what's our accuracy?
 np.mean(np.equal(predictions, validation_labels))
 
 
-# In[19]:
+# In[18]:
 
 
 # try it out on a custom avatar
@@ -187,7 +286,7 @@ prediction = clf.predict([histogram])[0]
 prediction
 
 
-# In[20]:
+# In[19]:
 
 
 # try it out on a default avatar
