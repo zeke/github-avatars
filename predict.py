@@ -1,7 +1,7 @@
 import cog
 import json
 import urllib
-import notebook # ./notebook.py
+import notebook_v2 as notebook # ./notebook.py
 
 class Predictor(cog.Predictor):
     def setup(self):
