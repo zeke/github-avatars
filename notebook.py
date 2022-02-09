@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[2]:
 
 
 from sklearn import tree
@@ -11,34 +11,34 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 
-# In[ ]:
+# In[3]:
 
 
 # deterministic, it seems
 files = load_files('./avatars', load_content=False)
 
 
-# In[ ]:
+# In[4]:
 
 
 files.keys()
 
 
-# In[ ]:
+# In[5]:
 
 
 # labels
 files["target"]
 
 
-# In[ ]:
+# In[6]:
 
 
 # folder names
 files["target_names"]
 
 
-# In[ ]:
+# In[7]:
 
 
 def file_to_color_histogram(path, bit_depth=8):
@@ -52,19 +52,22 @@ def file_to_color_histogram(path, bit_depth=8):
     return color_index_counts
 
 def load_pixels(path):
-    # open the file with pillow, resize it, normalize
+    """
+    open the file with pillow, resize it, normalize, and use numpy 
+    to extra an array of pixel data from the image
+    """
     image = Image.open(path)
     image = image.resize((16, 16))
     image = image.convert("RGB")
-
-    # use numpy to extra an array of pixel data from the image
     data = image.getdata()
     return np.array(data)
 
-# take an rgb array and run an integer representing the "color index"
 def rgb_to_index(pix, bit_depth=8):
+    """
+    take an rgb array and return an integer representing the "color index"
+    """
     quanitization_factor = 256//bit_depth
-    # divide each pixel by 32 and rounds
+    # divide each pixel by quantization factor and round to integer
     pix = pix//quanitization_factor 
 
     # convert octal numbers to decimal numbers
@@ -75,9 +78,10 @@ def rgb_to_index(pix, bit_depth=8):
 
     return np.sum(pix*multiplier, axis=1)
 
-
-# take a histogram index and spits out an rgb value
 def index_to_rgb(index):
+    """
+    take a histogram index and return an RGB array
+    """
     r = index//64%8
     g = index//8%8
     b = index//1%8
@@ -86,18 +90,18 @@ def index_to_rgb(index):
 [index_to_rgb(25)]#
 
 
-# In[ ]:
+# In[8]:
 
 
 # each histogram is an array of 8bits^3 (512 values) corresponding to the 8-bit colors in each image 
 # and each element in the array is the count of the number of pixels of that color
 histograms = []
 for file in files["filenames"]:
-    histogram = file_to_color_histogram(file, bit_depth=16)
+    histogram = file_to_color_histogram(file, bit_depth=8)
     histograms.append(histogram)
 
 
-# In[ ]:
+# In[9]:
 
 
 
@@ -105,13 +109,13 @@ histograms[0]
 len(histograms[0])
 
 
-# In[ ]:
+# In[10]:
 
 
 histograms[0].shape
 
 
-# In[ ]:
+# In[11]:
 
 
 # split our histograms and labels into a "training" set and a "validation" set
@@ -134,7 +138,7 @@ validation_labels = labels[len(labels)//2:]
 [len(training_set), len(validation_set), len(training_labels), len(validation_labels)]
 
 
-# In[ ]:
+# In[12]:
 
 
 # start with a simple decision tree
@@ -163,7 +167,7 @@ tree.plot_tree(clf)
 
 
 
-# In[ ]:
+# In[13]:
 
 
 # show color "511"
@@ -171,7 +175,7 @@ rgb = index_to_rgb(511)
 plt.imshow(rgb.reshape(1,1,3))
 
 
-# In[ ]:
+# In[14]:
 
 
 # show color "438"
@@ -179,7 +183,7 @@ rgb = index_to_rgb(438)
 plt.imshow(rgb.reshape(1,1,3))
 
 
-# In[ ]:
+# In[15]:
 
 
 # gini coefficient: goodness measure of how coherent the two groups are (zero is perfect, one (or 0.5?) is useless)
@@ -196,27 +200,27 @@ prediction = clf.predict(validation_set[:1])[0]
 prediction
 
 
-# In[ ]:
+# In[16]:
 
 
 validation_set[0][511], validation_set[0][438], validation_set[0][475]
 
 
-# In[ ]:
+# In[17]:
 
 
 predictions = clf.predict(validation_set)
 predictions
 
 
-# In[ ]:
+# In[18]:
 
 
 # how well did the model do?
 np.equal(predictions, validation_labels)
 
 
-# In[ ]:
+# In[19]:
 
 
 # indices of avatars that are actually defaults but are classified as custom
@@ -230,7 +234,7 @@ false_customs = np.where((predictions != validation_labels)&(validation_labels =
 false_customs
 
 
-# In[ ]:
+# In[20]:
 
 
 # display the false_custom(s)
@@ -250,7 +254,7 @@ if len(indices) > 0:
 
 
 
-# In[ ]:
+# In[21]:
 
 
 # indices of avatars that are actually customs but are classified as defaults
@@ -261,7 +265,7 @@ false_defaults = np.where((predictions != validation_labels)&(validation_labels 
 false_defaults
 
 
-# In[ ]:
+# In[22]:
 
 
 # display the false defaults
@@ -270,7 +274,7 @@ false_default_indices = false_defaults + len(histograms)//2
 
 filenames = [files["filenames"][index] for index in false_default_indices]
 
-print(filenames)
+# print(filenames)
 
 images = [np.asarray(Image.open(files["filenames"][index])) for index in false_default_indices]
 
@@ -281,7 +285,7 @@ for i in range(len(images)):
     plt.imshow(images[i])
 
 
-# In[ ]:
+# In[23]:
 
 
 # show quantized images (in which the values have been squished into a smaller range)
@@ -295,7 +299,7 @@ for i in range(len(images)):
     
 
 
-# In[ ]:
+# In[24]:
 
 
 pix = load_pixels(filenames[0])
@@ -322,13 +326,13 @@ summed = np.sum(multiplied, axis=1)
 # pix[0],index[0]
 
 
-# In[ ]:
+# In[25]:
 
 
 quantized_pix[0]
 
 
-# In[ ]:
+# In[26]:
 
 
 # print count of pixels with the "511" color
@@ -336,14 +340,14 @@ for i in range(len(images)):
     print(histograms[false_default_indices[i]][511])
 
 
-# In[ ]:
+# In[27]:
 
 
 # what's our accuracy?
 np.mean(np.equal(predictions, validation_labels))
 
 
-# In[ ]:
+# In[28]:
 
 
 # try it out on a custom avatar
@@ -352,7 +356,7 @@ prediction = clf.predict([histogram])[0]
 prediction
 
 
-# In[ ]:
+# In[29]:
 
 
 # try it out on a default avatar
