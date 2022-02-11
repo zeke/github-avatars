@@ -7,21 +7,51 @@ A machine learning model to differentiate default GitHub avatars from custom one
 | ![default](avatars/default/abrim.png) | ![custom](avatars/custom/zeke.png) |
 
 
-## Usage
-
-```
-cog build
-
-cog predict -i username=zeke
-```
-
 ## Development
+
+First, install [Cog](https://github.com/replicate/cog#install). Then:
 
 ```
 script/start
 ```
 
 Jupyter will output a URL to visit in your browser.
+
+## Build
+
+Saving any changes you've made to the notebook.
+
+If you've never run the build before:
+
+```
+cog build
+```
+
+Then:
+
+```
+script/build
+```
+
+This will convert the notebook to a python script and build the cog image.
+
+## Usage
+
+Call `cog predict` and specify a GitHub username as input to get a prediction:
+
+```
+cog predict -i username=zeke
+```
+
+You should see output like this:
+
+```json
+{
+  "username": "zeke",
+  "href": "https://github.com/zeke.png",
+  "prediction": "custom"
+}
+```
 
 ---
 
