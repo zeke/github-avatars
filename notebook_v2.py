@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[35]:
+# In[1]:
 
 
 from sklearn import tree
@@ -11,34 +11,34 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 
-# In[36]:
+# In[2]:
 
 
 # deterministic, it seems
 files = load_files('./avatars', load_content=False)
 
 
-# In[37]:
+# In[3]:
 
 
 files.keys()
 
 
-# In[38]:
+# In[4]:
 
 
 # labels
 files["filenames"][0:5], files["target_names"], files["target"][0:10]
 
 
-# In[39]:
+# In[5]:
 
 
 # folder names
 files["target_names"]
 
 
-# In[101]:
+# In[6]:
 
 
 def get_rgb_array(path):
@@ -75,7 +75,7 @@ def file_to_feature_vector(path):
     return [grey_count, unique_color_count]
 
 
-# In[100]:
+# In[7]:
 
 
 some_default_avatar = files["filenames"][1]
@@ -85,7 +85,7 @@ rgb_array = get_rgb_array(some_default_avatar)
 get_github_grey_count(rgb_array)
 
 
-# In[99]:
+# In[8]:
 
 
 examples = [file_to_feature_vector(path) for path in files["filenames"]]
@@ -93,7 +93,7 @@ examples = [file_to_feature_vector(path) for path in files["filenames"]]
 examples
 
 
-# In[102]:
+# In[9]:
 
 
 # split our examples and labels into a "training" set and a "validation" set
@@ -116,7 +116,7 @@ validation_labels = labels[len(labels)//2:]
 [len(training_set), len(validation_set), len(training_labels), len(validation_labels)]
 
 
-# In[103]:
+# In[10]:
 
 
 # find the feature and the threshold that best splits this into two classes
@@ -139,7 +139,7 @@ clf = clf.fit(training_set, training_labels)
 tree.plot_tree(clf)
 
 
-# In[104]:
+# In[11]:
 
 
 # gini coefficient: goodness measure of how coherent the two groups are (zero is perfect, one (or 0.5?) is useless)
@@ -150,21 +150,14 @@ prediction = clf.predict(validation_set[:1])[0]
 prediction
 
 
-# In[105]:
+# In[12]:
 
 
 predictions = clf.predict(validation_set)
 predictions
 
 
-# In[106]:
-
-
-# how well did the model do?
-np.mean(np.equal(predictions, validation_labels))
-
-
-# In[107]:
+# In[13]:
 
 
 # indices of avatars that are actually defaults but are classified as custom
@@ -178,20 +171,7 @@ false_customs = np.where((predictions != validation_labels)&(validation_labels =
 false_customs
 
 
-# In[108]:
-
-
-# display the false_custom(s)
-
-indices = false_customs + len(histograms)//2
-print(indices)
-
-if len(indices) > 0:
-    file = files["filenames"][indices[0]]
-    Image.open(file)
-
-
-# In[ ]:
+# In[14]:
 
 
 # indices of avatars that are actually customs but are classified as defaults
@@ -202,14 +182,14 @@ false_defaults = np.where((predictions != validation_labels)&(validation_labels 
 false_defaults
 
 
-# In[ ]:
+# In[15]:
 
 
 # what's our accuracy?
 np.mean(np.equal(predictions, validation_labels))
 
 
-# In[110]:
+# In[16]:
 
 
 # try it out on a custom avatar
@@ -218,17 +198,11 @@ prediction = clf.predict([feature_vector])[0]
 prediction
 
 
-# In[111]:
+# In[17]:
 
 
 # try it out on a default avatar
 feature_vector = file_to_feature_vector("smoke-tests/default.png")
 prediction = clf.predict([feature_vector])[0]
 prediction
-
-
-# In[ ]:
-
-
-
 
