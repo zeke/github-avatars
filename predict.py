@@ -1,14 +1,16 @@
-import cog
+from cog import BasePredictor, Input
+
 import json
 import urllib
 import notebook_v2 as notebook # ./notebook_v2.py
 
-class Predictor(cog.Predictor):
+class Predictor(BasePredictor):
     def setup(self):
       print("hello, setup")
 
-    @cog.input("username", type=str, help="GitHub username")
-    def predict(self, username):
+    def predict(self, 
+      username: str = Input(description="GitHub username")
+    ) -> str:
       href = f"https://github.com/{username}.png"
       filename = f"{username}.png"
       urllib.request.urlretrieve(href, filename)
