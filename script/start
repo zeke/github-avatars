@@ -2,8 +2,9 @@
 set -e # stop execution if a command or pipeline has an error
 set -x # print statements as they're being executed
 
-docker run -p 8888:8888 --volume $PWD:/src --interactive --tty cog-github-avatars jupyter notebook --allow-root --ip=0.0.0.0
+# requires cog >= 0.1.5
+cog run -p 8888 --debug jupyter notebook --allow-root --ip=0.0.0.0
 
-# would be nice:
-# cog run jupyter notebook -p 8888:8888 --allow-root --ip=0.0.0.0
+# equivalent docker command:
+# docker run -p 8888:8888 --volume $PWD:/src --interactive --tty cog-github-avatars jupyter notebook --allow-root --ip=0.0.0.0
 
