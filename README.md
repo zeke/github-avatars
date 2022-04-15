@@ -37,6 +37,12 @@ This will convert the notebook to a python script and build the cog image.
 
 ## Usage
 
+### Training
+
+Run the notebook, and run all the cells. This will output an updated `model.pkl`.
+
+### Predicting
+
 Call `cog predict` and specify a GitHub username as input to get a prediction:
 
 ```
